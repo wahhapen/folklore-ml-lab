@@ -1,5 +1,5 @@
 {
-  "corpusManifestSha256": "440728e8b3f6efcb540e7357a84ee1ab990edd8574441774a0676f6af880fa71",
+  "corpusManifestSha256": "1e614c013f4ec9a21e574a17653c8430eee11ae95ba80cc099a7dc52c7f257ca",
   "corpusRelease": "fa:release:corpus-v0.1.0",
   "counts": {
     "test": 12,

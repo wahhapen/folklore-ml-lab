@@ -18,6 +18,7 @@ similarity with human-reviewed evaluation.
 
 ```bash
 npm install
+npm run corpus:verify
 python -m folklore_ml prepare
 python -m folklore_ml classifier
 npm run ml:tiny
@@ -25,5 +26,7 @@ python -m folklore_ml verify
 npm test
 ```
 
-Python versions are recorded in `ml/requirements-lock.txt`. The vendored Corpus
-Release is pinned by ID and manifest digest.
+Python versions are recorded in `ml/requirements-lock.txt`. ML preparation now
+verifies every Corpus artifact before reading it; `FOLKLORE_CORPUS_DIR` can
+select a different installed Release. Task and run artifacts remain pinned by
+Release ID and manifest digest.

@@ -6,7 +6,7 @@
     "top-features.json": "a05a8df1eb390d626d11236dd9d41ddd90145a54b7ecbb34c5aa7ee08ab1c9ad"
   },
   "command": "python -m folklore_ml classifier",
-  "corpusManifestSha256": "440728e8b3f6efcb540e7357a84ee1ab990edd8574441774a0676f6af880fa71",
+  "corpusManifestSha256": "1e614c013f4ec9a21e574a17653c8430eee11ae95ba80cc099a7dc52c7f257ca",
   "corpusRelease": "fa:release:corpus-v0.1.0",
   "datasetSha256": "60f2df993fb1f8ca92d94c6ba0ff32f99604d9fb785d2ac80fe90bd79b79e282",
   "experiment": "edition-fingerprint-v1",

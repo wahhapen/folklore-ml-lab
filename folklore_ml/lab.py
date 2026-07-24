@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import platform
 from pathlib import Path
 
@@ -16,10 +17,29 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import LinearSVC
 
 ROOT = Path(__file__).resolve().parents[1]
-RELEASE = ROOT / "data/derived/releases/corpus-v0.1.0"
 TASK_DATA = ROOT / "ml/data/edition-fingerprint-v1"
 RUN_ROOT = ROOT / "ml/runs/edition-fingerprint-v1"
 SEED = 20260724
+
+
+def _resolve_release() -> Path:
+    configured = os.environ.get("FOLKLORE_CORPUS_DIR")
+    if configured:
+        return Path(configured).resolve()
+    releases_root = ROOT / "data/derived/releases"
+    candidates = sorted(
+        path for path in releases_root.iterdir()
+        if path.is_dir() and path.name.startswith("corpus-v")
+    )
+    if len(candidates) != 1:
+        raise RuntimeError(
+            "Expected exactly one installed Corpus Release, "
+            f"found {len(candidates)}. Set FOLKLORE_CORPUS_DIR explicitly."
+        )
+    return candidates[0]
+
+
+RELEASE = _resolve_release()
 
 
 def _records(path: Path) -> list[dict]:
@@ -46,7 +66,59 @@ def _sha256_text(value: str) -> str:
     return hashlib.sha256(value.encode()).hexdigest()
 
 
+def verify_corpus_release() -> dict:
+    manifest_bytes = (RELEASE / "manifest.json").read_bytes()
+    manifest_digest = hashlib.sha256(manifest_bytes).hexdigest()
+    manifest = json.loads(manifest_bytes)
+    if manifest.get("schemaVersion") != "folklore-release-manifest-v1":
+        raise RuntimeError(
+            f"Unsupported Corpus Release manifest: {manifest.get('schemaVersion')}"
+        )
+    if manifest.get("releaseId") != f"fa:release:corpus-v{manifest.get('version')}":
+        raise RuntimeError("Corpus Release ID and version disagree.")
+    artifacts = manifest.get("artifacts")
+    if not isinstance(artifacts, list) or not artifacts:
+        raise RuntimeError("Corpus Release has no declared artifacts.")
+    paths: set[str] = set()
+    for artifact in artifacts:
+        relative = artifact.get("path")
+        if (
+            not isinstance(relative, str)
+            or not relative
+            or relative.startswith("/")
+            or "\\" in relative
+            or any(part in (".", "..") for part in relative.split("/"))
+        ):
+            raise RuntimeError(f"Unsafe artifact path: {relative}")
+        if relative in paths:
+            raise RuntimeError(f"Duplicate artifact path: {relative}")
+        paths.add(relative)
+        contents = (RELEASE / relative).read_bytes()
+        if len(contents) != artifact.get("byteLength"):
+            raise RuntimeError(f"Artifact byte length mismatch: {relative}")
+        if hashlib.sha256(contents).hexdigest() != artifact.get("sha256"):
+            raise RuntimeError(f"Artifact digest mismatch: {relative}")
+    for required in (
+        "schema.json",
+        "documents.jsonl",
+        "witnesses.jsonl",
+        "passages.jsonl",
+    ):
+        if required not in paths:
+            raise RuntimeError(
+                f"Corpus Release is missing required artifact: {required}"
+            )
+    return {
+        "releaseId": manifest["releaseId"],
+        "version": manifest["version"],
+        "manifestSchemaVersion": manifest["schemaVersion"],
+        "manifestSha256": manifest_digest,
+        "artifactCount": len(artifacts),
+    }
+
+
 def prepare() -> dict:
+    verify_corpus_release()
     release_manifest_bytes = (RELEASE / "manifest.json").read_bytes()
     manifest = json.loads(release_manifest_bytes)
     documents = {row["id"]: row for row in _records(RELEASE / "documents.jsonl")}
@@ -239,6 +311,7 @@ infer cultural origin, ethnicity, authenticity, motif, or tale type.
 
 
 def verify() -> None:
+    verify_corpus_release()
     task = json.loads((TASK_DATA / "manifest.json").read_text(encoding="utf-8"))
     release = json.loads((RELEASE / "manifest.json").read_text(encoding="utf-8"))
     if task["corpusRelease"] != release["releaseId"]:

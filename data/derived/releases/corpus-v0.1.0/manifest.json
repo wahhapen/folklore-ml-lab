@@ -3,6 +3,10 @@
   "releaseId": "fa:release:corpus-v0.1.0",
   "version": "0.1.0",
   "publishedAt": "2026-07-24",
+  "producer": {
+    "repository": "wahhapen/folklore-corpus",
+    "commit": "e8cb8a3d60031c2e15eaa3b278ca6353208ecb39"
+  },
   "compiler": {
     "command": "npm run build:corpus",
     "parser": "gutenberg-story-parser-v2",
@@ -105,6 +109,11 @@
       "path": "schema.json",
       "byteLength": 4267,
       "sha256": "2ff1e23c5b159af4ba0dda36da3cdd1a6979fdbdafe07615a9c9bed4c51813e9"
+    },
+    {
+      "path": "manifest.schema.json",
+      "byteLength": 3085,
+      "sha256": "78b19e4b17cabfe744e9178a00e1576f0737c9a2f24ba8742d4353dd716282fd"
     },
     {
       "path": "dataset-card.md",

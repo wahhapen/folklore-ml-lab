@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import * as tf from "@tensorflow/tfjs";
@@ -7,7 +7,21 @@ import * as tf from "@tensorflow/tfjs";
 const root = process.cwd();
 const dataRoot = path.join(root, "ml/data/edition-fingerprint-v1");
 const runRoot = path.join(root, "ml/runs/tiny-byte-transformer-v1");
-const releaseRoot = path.join(root, "data/derived/releases/corpus-v0.1.0");
+const releasesRoot = path.join(root, "data/derived/releases");
+const releaseCandidates = (
+  await readdir(releasesRoot, { withFileTypes: true })
+)
+  .filter((entry) => entry.isDirectory() && entry.name.startsWith("corpus-v"))
+  .map((entry) => path.join(releasesRoot, entry.name));
+const releaseRoot = process.env.FOLKLORE_CORPUS_DIR
+  ? path.resolve(process.env.FOLKLORE_CORPUS_DIR)
+  : releaseCandidates.length === 1
+    ? releaseCandidates[0]
+    : (() => {
+        throw new Error(
+          `Expected exactly one installed Corpus Release, found ${releaseCandidates.length}. Set FOLKLORE_CORPUS_DIR explicitly.`,
+        );
+      })();
 const seed = 20260724;
 const config = {
   vocabSize: 257,
@@ -331,6 +345,17 @@ const releaseManifest = JSON.parse(releaseManifestContents);
 const taskManifest = JSON.parse(
   await readFile(path.join(dataRoot, "manifest.json"), "utf8"),
 );
+const releaseManifestSha256 = createHash("sha256")
+  .update(releaseManifestContents)
+  .digest("hex");
+if (
+  taskManifest.corpusRelease !== releaseManifest.releaseId
+  || taskManifest.corpusManifestSha256 !== releaseManifestSha256
+) {
+  throw new Error(
+    "Prepared task data is not pinned to the selected Corpus Release.",
+  );
+}
 const trainRows = parseJsonLines(
   await readFile(path.join(dataRoot, "train.jsonl"), "utf8"),
 );
@@ -449,9 +474,7 @@ const run = {
   purpose:
     "Educational byte-level language-model training; not a practically useful folklore model.",
   corpusRelease: releaseManifest.releaseId,
-  corpusManifestSha256: createHash("sha256")
-    .update(releaseManifestContents)
-    .digest("hex"),
+  corpusManifestSha256: releaseManifestSha256,
   datasetSha256: taskManifest.datasetSha256,
   seed,
   backend: await tf.getBackend(),
