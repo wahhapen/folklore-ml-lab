@@ -1,0 +1,252 @@
+{
+  "fa:edition:pg-1597": [
+    {
+      "feature": "color",
+      "weight": 0.15496996299221383
+    },
+    {
+      "feature": "olor",
+      "weight": 0.15496996299221383
+    },
+    {
+      "feature": "fice",
+      "weight": 0.138930585802912
+    },
+    {
+      "feature": "real",
+      "weight": 0.1388151757127178
+    },
+    {
+      "feature": "s!\" ",
+      "weight": 0.13849131910007892
+    },
+    {
+      "feature": "s!\"",
+      "weight": 0.13849131910007892
+    },
+    {
+      "feature": "t!\" ",
+      "weight": 0.13479756917737895
+    },
+    {
+      "feature": "t!\"",
+      "weight": 0.13479756917737895
+    },
+    {
+      "feature": "ctur",
+      "weight": 0.1345143061417554
+    },
+    {
+      "feature": "cture",
+      "weight": 0.1345143061417554
+    },
+    {
+      "feature": "!\" ",
+      "weight": 0.13442356031345837
+    },
+    {
+      "feature": "!\" s",
+      "weight": 0.13392565540683277
+    }
+  ],
+  "fa:edition:pg-2591": [
+    {
+      "feature": ".' ",
+      "weight": 0.5700783300046384
+    },
+    {
+      "feature": "' th",
+      "weight": 0.44292183055258655
+    },
+    {
+      "feature": "' t",
+      "weight": 0.43729356281156806
+    },
+    {
+      "feature": "' the",
+      "weight": 0.4348639953424838
+    },
+    {
+      "feature": ": '",
+      "weight": 0.4325305684643515
+    },
+    {
+      "feature": ".' t",
+      "weight": 0.4136747800582872
+    },
+    {
+      "feature": ".' th",
+      "weight": 0.4133870012174809
+    },
+    {
+      "feature": " 'i",
+      "weight": 0.41159257944466326
+    },
+    {
+      "feature": ". '",
+      "weight": 0.3902425529929179
+    },
+    {
+      "feature": ",' ",
+      "weight": 0.3870931768624143
+    },
+    {
+      "feature": ", '",
+      "weight": 0.38294890065832127
+    },
+    {
+      "feature": "' s",
+      "weight": 0.3792549143788473
+    }
+  ],
+  "fa:edition:pg-4018": [
+    {
+      "feature": "monke",
+      "weight": 0.20138818311356688
+    },
+    {
+      "feature": "monk",
+      "weight": 0.20138818311356688
+    },
+    {
+      "feature": " monk",
+      "weight": 0.19718811926606378
+    },
+    {
+      "feature": "japa",
+      "weight": 0.18740626716462758
+    },
+    {
+      "feature": "apan",
+      "weight": 0.18740626716462758
+    },
+    {
+      "feature": "japan",
+      "weight": 0.18740626716462758
+    },
+    {
+      "feature": "jap",
+      "weight": 0.18740626716462758
+    },
+    {
+      "feature": "onkey",
+      "weight": 0.17958501272579772
+    },
+    {
+      "feature": "onk",
+      "weight": 0.17958501272579772
+    },
+    {
+      "feature": "onke",
+      "weight": 0.17958501272579772
+    },
+    {
+      "feature": "nkey",
+      "weight": 0.17958501272579772
+    },
+    {
+      "feature": " jap",
+      "weight": 0.17760675051369934
+    }
+  ],
+  "fa:edition:pg-7439": [
+    {
+      "feature": ": \"",
+      "weight": 0.28951629115330607
+    },
+    {
+      "feature": "nny",
+      "weight": 0.26039717823683783
+    },
+    {
+      "feature": "jack",
+      "weight": 0.2573756945395497
+    },
+    {
+      "feature": " jac",
+      "weight": 0.25409062630684287
+    },
+    {
+      "feature": " jack",
+      "weight": 0.25409062630684287
+    },
+    {
+      "feature": "jac",
+      "weight": 0.2514360878053298
+    },
+    {
+      "feature": "d: \"",
+      "weight": 0.23911505042939804
+    },
+    {
+      "feature": ".\" ",
+      "weight": 0.23376313392553316
+    },
+    {
+      "feature": "id: \"",
+      "weight": 0.22763626502668147
+    },
+    {
+      "feature": "jack ",
+      "weight": 0.22376528209144947
+    },
+    {
+      "feature": "\" so ",
+      "weight": 0.20999132955860264
+    },
+    {
+      "feature": "\" s",
+      "weight": 0.2050294615851945
+    }
+  ],
+  "fa:edition:pg-7885": [
+    {
+      "feature": " ll",
+      "weight": 0.25071616976180555
+    },
+    {
+      "feature": "it'",
+      "weight": 0.21174584073749225
+    },
+    {
+      "feature": "it's",
+      "weight": 0.21163052814075176
+    },
+    {
+      "feature": "it's ",
+      "weight": 0.20968164562814096
+    },
+    {
+      "feature": "hound",
+      "weight": 0.20956458302624165
+    },
+    {
+      "feature": "houn",
+      "weight": 0.20956458302624165
+    },
+    {
+      "feature": " it'",
+      "weight": 0.1865945355761725
+    },
+    {
+      "feature": "n of ",
+      "weight": 0.185703746176399
+    },
+    {
+      "feature": " it's",
+      "weight": 0.1855906308281293
+    },
+    {
+      "feature": " you'",
+      "weight": 0.18297103819114846
+    },
+    {
+      "feature": "\" \"i",
+      "weight": 0.18067161108439211
+    },
+    {
+      "feature": "ou'",
+      "weight": 0.17954549493480648
+    }
+  ]
+}

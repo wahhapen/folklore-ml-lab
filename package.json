@@ -1,0 +1,21 @@
+{
+  "name": "folklore-ml-lab",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "ml:prepare": "python -m folklore_ml prepare",
+    "ml:classifier": "python -m folklore_ml classifier",
+    "ml:tiny": "node scripts/train-tiny-transformer.mjs",
+    "ml:verify": "python -m folklore_ml verify",
+    "test": "vitest run",
+    "validate": "npm run ml:verify && npm test"
+  },
+  "devDependencies": {
+    "@tensorflow/tfjs": "4.22.0",
+    "vitest": "4.1.10"
+  }
+}

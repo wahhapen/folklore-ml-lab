@@ -1,0 +1,20 @@
+{
+  "artifacts": {
+    "metrics.json": "6ed2869aa2d9bfa154ed23626ff8cac0012321218493b35149056e4feefd50a4",
+    "model-card.md": "9108b5499927e3b7e4570cb3b80632f11afc401beaf2e2079bb985a62c144b8c",
+    "predictions.jsonl": "86eadbb7dc9a1bb7ded75be7d2c2298b4f23f61bee5c5d6abefc9d2fa4965386",
+    "top-features.json": "a05a8df1eb390d626d11236dd9d41ddd90145a54b7ecbb34c5aa7ee08ab1c9ad"
+  },
+  "command": "python -m folklore_ml classifier",
+  "corpusManifestSha256": "440728e8b3f6efcb540e7357a84ee1ab990edd8574441774a0676f6af880fa71",
+  "corpusRelease": "fa:release:corpus-v0.1.0",
+  "datasetSha256": "60f2df993fb1f8ca92d94c6ba0ff32f99604d9fb785d2ac80fe90bd79b79e282",
+  "experiment": "edition-fingerprint-v1",
+  "runtime": {
+    "numpy": "2.3.5",
+    "python": "3.12.13",
+    "scikitLearn": "1.8.0"
+  },
+  "schemaVersion": "folklore-ml-run-v1",
+  "seed": 20260724
+}

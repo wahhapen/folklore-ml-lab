@@ -1,0 +1,13 @@
+{"step":1,"trainNatsPerByte":5.536916255950928,"validationNatsPerByte":5.440265715122223,"validationBitsPerByte":7.848644368325082,"elapsedSeconds":1.814}
+{"step":50,"trainNatsPerByte":3.203073263168335,"validationNatsPerByte":3.082085222005844,"validationBitsPerByte":4.4465090653849915,"elapsedSeconds":38.946}
+{"step":100,"trainNatsPerByte":3.119568109512329,"validationNatsPerByte":3.0754258930683136,"validationBitsPerByte":4.4369016845511675,"elapsedSeconds":77.864}
+{"step":150,"trainNatsPerByte":3.096076011657715,"validationNatsPerByte":3.0404146909713745,"validationBitsPerByte":4.386391196910353,"elapsedSeconds":115.962}
+{"step":200,"trainNatsPerByte":2.754523992538452,"validationNatsPerByte":2.7820882499217987,"validationBitsPerByte":4.013704921477634,"elapsedSeconds":154.405}
+{"step":250,"trainNatsPerByte":2.556589126586914,"validationNatsPerByte":2.5670997202396393,"validationBitsPerByte":3.703542035857173,"elapsedSeconds":193.036}
+{"step":300,"trainNatsPerByte":2.4749374389648438,"validationNatsPerByte":2.502011686563492,"validationBitsPerByte":3.609639852451381,"elapsedSeconds":230.655}
+{"step":350,"trainNatsPerByte":2.4248108863830566,"validationNatsPerByte":2.423667222261429,"validationBitsPerByte":3.4966126823216928,"elapsedSeconds":269.563}
+{"step":400,"trainNatsPerByte":2.3714778423309326,"validationNatsPerByte":2.4802078902721405,"validationBitsPerByte":3.5781836236692954,"elapsedSeconds":307.1}
+{"step":450,"trainNatsPerByte":2.33498477935791,"validationNatsPerByte":2.3970640897750854,"validationBitsPerByte":3.458232475011533,"elapsedSeconds":346.071}
+{"step":500,"trainNatsPerByte":2.4155287742614746,"validationNatsPerByte":2.357282727956772,"validationBitsPerByte":3.4008401015964425,"elapsedSeconds":383.717}
+{"step":550,"trainNatsPerByte":2.3420944213867188,"validationNatsPerByte":2.377052813768387,"validationBitsPerByte":3.4293623063548084,"elapsedSeconds":422.32}
+{"step":600,"trainNatsPerByte":2.4069011211395264,"validationNatsPerByte":2.410361409187317,"validationBitsPerByte":3.4774164517846757,"elapsedSeconds":460.955}

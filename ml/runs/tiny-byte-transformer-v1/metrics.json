@@ -1,0 +1,113 @@
+{
+  "experiment": "tiny-byte-transformer-v1",
+  "parameterCount": 19009,
+  "steps": 600,
+  "trainBytes": 1448430,
+  "validationBytes": 115534,
+  "final": {
+    "natsPerByte": 2.3819416910409927,
+    "bitsPerByte": 3.4364154653515118,
+    "bytePerplexity": 10.825903028338658
+  },
+  "baselines": {
+    "unigram": {
+      "natsPerByte": 3.052964010386319,
+      "bitsPerByte": 4.404496037796824
+    },
+    "bigram": {
+      "natsPerByte": 2.3760705748039626,
+      "bitsPerByte": 3.4279452350718658
+    }
+  },
+  "improvementOverUnigram": 0.21979372081114573,
+  "memorization": {
+    "longestExactTrainingSpan": 19,
+    "copied32ByteSampleRate": 0,
+    "perSample": [
+      {
+        "prompt": "Once upon a time",
+        "temperature": 0.7,
+        "longestExactTrainingSpan": 16,
+        "containsCopied32ByteSpan": false,
+        "fiveCharacterShingleJaccard": 0.00027651256211931515
+      },
+      {
+        "prompt": "Once upon a time",
+        "temperature": 1,
+        "longestExactTrainingSpan": 16,
+        "containsCopied32ByteSpan": false,
+        "fiveCharacterShingleJaccard": 0.0002765061906663799
+      },
+      {
+        "prompt": "In the forest",
+        "temperature": 0.7,
+        "longestExactTrainingSpan": 14,
+        "containsCopied32ByteSpan": false,
+        "fiveCharacterShingleJaccard": 0.00029957368360410185
+      },
+      {
+        "prompt": "In the forest",
+        "temperature": 1,
+        "longestExactTrainingSpan": 13,
+        "containsCopied32ByteSpan": false,
+        "fiveCharacterShingleJaccard": 0.0002457813928124304
+      },
+      {
+        "prompt": "The old woman said",
+        "temperature": 0.7,
+        "longestExactTrainingSpan": 19,
+        "containsCopied32ByteSpan": false,
+        "fiveCharacterShingleJaccard": 0.00029186764570340103
+      },
+      {
+        "prompt": "The old woman said",
+        "temperature": 1,
+        "longestExactTrainingSpan": 19,
+        "containsCopied32ByteSpan": false,
+        "fiveCharacterShingleJaccard": 0.00023040766796718996
+      },
+      {
+        "prompt": "A king had three",
+        "temperature": 0.7,
+        "longestExactTrainingSpan": 12,
+        "containsCopied32ByteSpan": false,
+        "fiveCharacterShingleJaccard": 0.00033797277782898576
+      },
+      {
+        "prompt": "A king had three",
+        "temperature": 1,
+        "longestExactTrainingSpan": 12,
+        "containsCopied32ByteSpan": false,
+        "fiveCharacterShingleJaccard": 0.00019200196610013286
+      },
+      {
+        "prompt": "When the moon rose",
+        "temperature": 0.7,
+        "longestExactTrainingSpan": 15,
+        "containsCopied32ByteSpan": false,
+        "fiveCharacterShingleJaccard": 0.0004148134491738299
+      },
+      {
+        "prompt": "When the moon rose",
+        "temperature": 1,
+        "longestExactTrainingSpan": 14,
+        "containsCopied32ByteSpan": false,
+        "fiveCharacterShingleJaccard": 0.00023040766796718996
+      },
+      {
+        "prompt": "The fox answered",
+        "temperature": 0.7,
+        "longestExactTrainingSpan": 11,
+        "containsCopied32ByteSpan": false,
+        "fiveCharacterShingleJaccard": 0.0004071317186335738
+      },
+      {
+        "prompt": "The fox answered",
+        "temperature": 1,
+        "longestExactTrainingSpan": 11,
+        "containsCopied32ByteSpan": false,
+        "fiveCharacterShingleJaccard": 0.0002457757296466974
+      }
+    ]
+  }
+}

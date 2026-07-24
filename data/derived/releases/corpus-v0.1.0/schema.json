@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://folklore-atlas.example/schemas/corpus-release-v1.schema.json",
+  "title": "Folklore Corpus Release v1 records",
+  "oneOf": [
+    { "$ref": "#/$defs/capture" },
+    { "$ref": "#/$defs/edition" },
+    { "$ref": "#/$defs/document" },
+    { "$ref": "#/$defs/witness" },
+    { "$ref": "#/$defs/passage" },
+    { "$ref": "#/$defs/lineage" },
+    { "$ref": "#/$defs/split" },
+    { "$ref": "#/$defs/alias" }
+  ],
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "pattern": "^fa:[a-z-]+:"
+    },
+    "capture": {
+      "type": "object",
+      "required": ["schemaVersion", "id", "capturedAt", "rawPath", "rawSha256", "byteLength"],
+      "properties": {
+        "schemaVersion": { "const": "folklore-capture-v1" },
+        "id": { "$ref": "#/$defs/stableId" },
+        "rawSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "byteLength": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": true
+    },
+    "edition": {
+      "type": "object",
+      "required": ["schemaVersion", "id", "captureId", "title", "language"],
+      "properties": {
+        "schemaVersion": { "const": "folklore-edition-v1" },
+        "id": { "$ref": "#/$defs/stableId" },
+        "captureId": { "$ref": "#/$defs/stableId" },
+        "title": { "type": "string", "minLength": 1 },
+        "language": { "type": "string", "minLength": 2 }
+      },
+      "additionalProperties": true
+    },
+    "document": {
+      "type": "object",
+      "required": ["schemaVersion", "id", "editionId", "title", "language", "captureId", "witnessIds"],
+      "properties": {
+        "schemaVersion": { "const": "folklore-document-v1" },
+        "id": { "$ref": "#/$defs/stableId" },
+        "editionId": { "$ref": "#/$defs/stableId" },
+        "title": { "type": "string", "minLength": 1 },
+        "language": { "type": "string", "minLength": 2 },
+        "captureId": { "$ref": "#/$defs/stableId" },
+        "witnessIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/stableId" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "witness": {
+      "type": "object",
+      "required": ["schemaVersion", "id", "documentId", "language", "text", "rawSha256"],
+      "properties": {
+        "schemaVersion": { "const": "folklore-witness-v1" },
+        "id": { "$ref": "#/$defs/stableId" },
+        "documentId": { "$ref": "#/$defs/stableId" },
+        "text": { "type": "string", "minLength": 1 },
+        "rawSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      },
+      "additionalProperties": true
+    },
+    "passage": {
+      "type": "object",
+      "required": ["schemaVersion", "id", "documentId", "witnessId", "ordinal", "text"],
+      "properties": {
+        "schemaVersion": { "const": "folklore-passage-v1" },
+        "id": { "$ref": "#/$defs/stableId" },
+        "documentId": { "$ref": "#/$defs/stableId" },
+        "witnessId": { "$ref": "#/$defs/stableId" },
+        "ordinal": { "type": "integer", "minimum": 1 },
+        "text": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": true
+    },
+    "lineage": {
+      "type": "object",
+      "required": ["schemaVersion", "outputId", "inputIds", "method", "methodVersion", "rawSha256"],
+      "properties": {
+        "schemaVersion": { "const": "folklore-lineage-v1" },
+        "outputId": { "$ref": "#/$defs/stableId" },
+        "inputIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/stableId" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "split": {
+      "type": "object",
+      "required": ["schemaVersion", "splitId", "documentId", "groupId", "split"],
+      "properties": {
+        "schemaVersion": { "const": "folklore-split-v1" },
+        "split": { "enum": ["train", "validation", "test"] }
+      },
+      "additionalProperties": true
+    },
+    "alias": {
+      "type": "object",
+      "required": ["schemaVersion", "kind", "alias", "targetId", "reason"],
+      "properties": {
+        "schemaVersion": { "const": "folklore-alias-v1" },
+        "targetId": { "$ref": "#/$defs/stableId" }
+      },
+      "additionalProperties": true
+    }
+  }
+}

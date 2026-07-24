@@ -1,0 +1,120 @@
+{
+  "schemaVersion": "folklore-release-manifest-v1",
+  "releaseId": "fa:release:corpus-v0.1.0",
+  "version": "0.1.0",
+  "publishedAt": "2026-07-24",
+  "compiler": {
+    "command": "npm run build:corpus",
+    "parser": "gutenberg-story-parser-v2",
+    "node": ">=22.13.0"
+  },
+  "counts": {
+    "captures": 5,
+    "editions": 5,
+    "documents": 170,
+    "witnesses": 170,
+    "passages": 3291,
+    "aliases": 171,
+    "lineageEvents": 3631,
+    "splitAssignments": 170
+  },
+  "splitCounts": {
+    "train": 143,
+    "validation": 15,
+    "test": 12
+  },
+  "inputs": [
+    {
+      "path": "data/raw/gutenberg/andersen-1597.txt",
+      "sourceUrl": "https://github.com/GITenberg/Andersen-s-Fairy-Tales_1597/blob/master/1597.txt",
+      "byteLength": 324890,
+      "sha256": "d7a1cc952edbbd27e6c78931416d14dd25755cf5d9b7add01cf86b4417cd96a2"
+    },
+    {
+      "path": "data/raw/gutenberg/celtic-7885.txt",
+      "sourceUrl": "https://github.com/GITenberg/Celtic-Fairy-Tales_7885/blob/master/7885.txt",
+      "byteLength": 422196,
+      "sha256": "6d8df0f35e37fb27599ef21b5d8da199efa8e8b0064bf0b77c88f9fd6edec74f"
+    },
+    {
+      "path": "data/raw/gutenberg/english-7439.txt",
+      "sourceUrl": "https://github.com/GITenberg/English-Fairy-Tales_7439/blob/master/7439.txt",
+      "byteLength": 350289,
+      "sha256": "cca3f559bec328bdd0e3a923cf4fe0c40140bed97e45b0a5b60af36caa2aa4c7"
+    },
+    {
+      "path": "data/raw/gutenberg/grimms-2591.txt",
+      "sourceUrl": "https://github.com/GITenberg/Grimms-Fairy-Tales_2591/blob/master/2591.txt",
+      "byteLength": 549774,
+      "sha256": "8ade9aa3b46666387eff9703a32faf14c9bf7a79c787207cfe5fa59fd4c2c8fd"
+    },
+    {
+      "path": "data/raw/gutenberg/japanese-4018.txt",
+      "sourceUrl": "https://github.com/GITenberg/Japanese-Fairy-Tales_4018/blob/master/4018.txt",
+      "byteLength": 399524,
+      "sha256": "7f973bfeb4a058bf7e5bd5d61a8fbd9e2eab4b05667b218f5d282bcd185575f0"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "captures.jsonl",
+      "byteLength": 2617,
+      "sha256": "ed3674100bf4a91bbb9c63c35719450df10398843ba8ad9a2bda058dabd3d4be"
+    },
+    {
+      "path": "editions.jsonl",
+      "byteLength": 2322,
+      "sha256": "ee79b15d23461d1f9156e7e0e764298d54b9b53198cc261b2b586485ea2db315"
+    },
+    {
+      "path": "documents.jsonl",
+      "byteLength": 146006,
+      "sha256": "0f1bf35712e5abe828be60c47a636112d6cbc61e21066f7db702e2604a6832ae"
+    },
+    {
+      "path": "witnesses.jsonl",
+      "byteLength": 1916782,
+      "sha256": "cb019fb33b70012cd9ab7f2643dba536c51a24a96033c3077cf5f1d4977ae4b3"
+    },
+    {
+      "path": "passages.jsonl",
+      "byteLength": 2767798,
+      "sha256": "38ffbd9989928241100e0844f955f80afb80de11ca47bca93cb36c7a662629ec"
+    },
+    {
+      "path": "splits.jsonl",
+      "byteLength": 37123,
+      "sha256": "2b62e6ecb8107abc209127f5b1d1f5ffa685d0c1748d89a1fe4f71608a35ecc8"
+    },
+    {
+      "path": "aliases.jsonl",
+      "byteLength": 36985,
+      "sha256": "f4e0ef76aa2eec945d277450c485efbd1e0fb4654956a16895db6cd68f134697"
+    },
+    {
+      "path": "lineage.jsonl",
+      "byteLength": 1149341,
+      "sha256": "c6fcf67e0d1f1762ddd130f6958626d93f058aa5dca6bd14de393931322f6d3a"
+    },
+    {
+      "path": "duplicate-candidates.jsonl",
+      "byteLength": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "schema.json",
+      "byteLength": 4267,
+      "sha256": "2ff1e23c5b159af4ba0dda36da3cdd1a6979fdbdafe07615a9c9bed4c51813e9"
+    },
+    {
+      "path": "dataset-card.md",
+      "byteLength": 3823,
+      "sha256": "e3dd355e6c2d69446c03a686535f532388caa6454fea253707923daa3b968f4d"
+    },
+    {
+      "path": "compatibility/folklore-corpus.json",
+      "byteLength": 2033233,
+      "sha256": "5e7ab38441f26e6a3e7495d23c0e404864eaeb88e4a0ab64281642ce17f0cc57"
+    }
+  ]
+}

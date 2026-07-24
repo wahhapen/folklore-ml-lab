@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "folklore-ml-run-v1",
+  "experiment": "tiny-byte-transformer-v1",
+  "purpose": "Educational byte-level language-model training; not a practically useful folklore model.",
+  "corpusRelease": "fa:release:corpus-v0.1.0",
+  "corpusManifestSha256": "440728e8b3f6efcb540e7357a84ee1ab990edd8574441774a0676f6af880fa71",
+  "datasetSha256": "60f2df993fb1f8ca92d94c6ba0ff32f99604d9fb785d2ac80fe90bd79b79e282",
+  "seed": 20260724,
+  "backend": "cpu",
+  "tensorflowJsCore": "4.22.0",
+  "config": {
+    "vocabSize": 257,
+    "eosToken": 256,
+    "context": 64,
+    "width": 32,
+    "heads": 4,
+    "feedForward": 64,
+    "batchSize": 8,
+    "steps": 600,
+    "validationEvery": 50,
+    "learningRate": 0.002,
+    "gradientClip": 1
+  },
+  "command": "npm run ml:tiny",
+  "artifacts": {
+    "metrics.json": "20236b798b77ef301edd4178da8230c113c66f505c10fc93e88d006ce6fcf623",
+    "history.jsonl": "1ec1cb7c2c2520f8f8eefd44693e531297c12138e9def24076a8dc2646247ed8",
+    "samples.jsonl": "53403afd12aafe8ad0b020f41dccb05b992ea4e4808c293e1144e0497ca5fa75",
+    "checkpoint.json": "31705dc2cb24341d0c56d9f27c399ed33b335e92df8f3faeaddcd10606afc130",
+    "model-card.md": "c8b25abf7b555c1c0f4305b476f4339c818f9b30de5d2852a7d864dc723b5b2f"
+  },
+  "durationSeconds": 489.173
+}

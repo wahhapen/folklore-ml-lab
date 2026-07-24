@@ -1,0 +1,21 @@
+{
+  "corpusManifestSha256": "440728e8b3f6efcb540e7357a84ee1ab990edd8574441774a0676f6af880fa71",
+  "corpusRelease": "fa:release:corpus-v0.1.0",
+  "counts": {
+    "test": 12,
+    "train": 143,
+    "validation": 15
+  },
+  "datasetSha256": "60f2df993fb1f8ca92d94c6ba0ff32f99604d9fb785d2ac80fe90bd79b79e282",
+  "labels": [
+    "fa:edition:pg-1597",
+    "fa:edition:pg-2591",
+    "fa:edition:pg-4018",
+    "fa:edition:pg-7439",
+    "fa:edition:pg-7885"
+  ],
+  "purpose": "Diagnostic source-edition attribution; not folklore classification.",
+  "schemaVersion": "folklore-ml-task-v1",
+  "seed": 20260724,
+  "task": "edition-fingerprint-v1"
+}
