@@ -7,12 +7,13 @@
     "node": ">=22.13.0"
   },
   "scripts": {
+    "corpus:verify": "python -m folklore_ml verify-corpus",
     "ml:prepare": "python -m folklore_ml prepare",
     "ml:classifier": "python -m folklore_ml classifier",
-    "ml:tiny": "node scripts/train-tiny-transformer.mjs",
+    "ml:tiny": "python -m folklore_ml verify-corpus && node scripts/train-tiny-transformer.mjs",
     "ml:verify": "python -m folklore_ml verify",
     "test": "vitest run",
-    "validate": "npm run ml:verify && npm test"
+    "validate": "npm run corpus:verify && npm run ml:verify && npm test"
   },
   "devDependencies": {
     "@tensorflow/tfjs": "4.22.0",
