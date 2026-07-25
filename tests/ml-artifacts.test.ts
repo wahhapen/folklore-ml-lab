@@ -1,17 +1,98 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 describe("ML Lab experiment contract", () => {
-  it("prepares deterministic, release-pinned task data", () => {
+  const temporaryDirectories: string[] = [];
+
+  afterEach(() => {
+    for (const directory of temporaryDirectories.splice(0)) {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("verifies preserved v0.1 runs without requiring the current pinned cache", () => {
+    const root = mkdtempSync(join(tmpdir(), "folklore-ml-legacy-"));
+    temporaryDirectories.push(root);
+    const lock = join(root, "corpus-release.lock.json");
+    writeFileSync(
+      lock,
+      `${JSON.stringify({
+        schemaVersion: "folklore-corpus-lock-v1",
+        source: {
+          repository: "wahhapen/folklore-corpus",
+          tag: "corpus-v0.2.0",
+          asset: "folklore-corpus-v0.2.0.tar.gz",
+          url: "https://example.invalid/folklore-corpus-v0.2.0.tar.gz",
+        },
+        archiveSha256: "0".repeat(64),
+        manifestSha256: "1".repeat(64),
+        releaseId: "fa:release:corpus-v0.2.0",
+        version: "0.2.0",
+        manifestSchemaVersion: "folklore-release-manifest-v1",
+      }, null, 2)}\n`,
+    );
+
+    expect(() =>
+      execFileSync(
+        "python",
+        ["-m", "folklore_ml", "verify", "--legacy-only"],
+        {
+          env: {
+            ...process.env,
+            FOLKLORE_CORPUS_LOCK: lock,
+            FOLKLORE_CACHE_DIR: join(root, "empty-cache"),
+          },
+          stdio: "pipe",
+        },
+      ),
+    ).not.toThrow();
+  });
+
+  it("does not rewrite preserved v0.1 task artifacts during legacy preparation", () => {
+    const root = mkdtempSync(join(tmpdir(), "folklore-ml-prepare-"));
+    temporaryDirectories.push(root);
+    const path = "ml/data/edition-fingerprint-v1/manifest.json";
+    const before = createHash("sha256").update(readFileSync(path)).digest("hex");
     execFileSync("python", ["-m", "folklore_ml", "prepare"], {
+      env: {
+        ...process.env,
+        FOLKLORE_ML_DATA_DIR: join(root, "task-data"),
+      },
+      stdio: "pipe",
+    });
+    const after = createHash("sha256").update(readFileSync(path)).digest("hex");
+    expect(after).toBe(before);
+  });
+
+  it("prepares deterministic, release-pinned task data", () => {
+    const root = mkdtempSync(join(tmpdir(), "folklore-ml-prepare-"));
+    temporaryDirectories.push(root);
+    const taskData = join(root, "task-data");
+    execFileSync("python", ["-m", "folklore_ml", "prepare"], {
+      env: {
+        ...process.env,
+        FOLKLORE_ML_DATA_DIR: taskData,
+      },
       stdio: "pipe",
     });
     const manifest = JSON.parse(
-      readFileSync("ml/data/edition-fingerprint-v1/manifest.json", "utf8"),
+      readFileSync(join(taskData, "manifest.json"), "utf8"),
     );
-    expect(manifest.corpusRelease).toBe("fa:release:corpus-v0.1.0");
+    expect(manifest.corpusRelease).toBe("fa:release:corpus-v0.2.0");
+    expect(manifest.corpusManifestSha256).toBe(
+      "8605d05e9858a3480985c3f4553952c4a374ce7bad4d6a7f5ad74672bf1587dd",
+    );
     expect(manifest.counts.train + manifest.counts.validation + manifest.counts.test).toBe(
       170,
     );

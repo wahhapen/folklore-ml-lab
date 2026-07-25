@@ -7,7 +7,9 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "corpus:verify": "python -m folklore_ml verify-corpus",
+    "corpus:fetch": "python -m folklore_ml corpus install",
+    "corpus:verify": "python -m folklore_ml corpus verify",
+    "corpus:status": "python -m folklore_ml corpus status",
     "ml:prepare": "python -m folklore_ml prepare",
     "ml:classifier": "python -m folklore_ml classifier",
     "ml:tiny": "python -m folklore_ml verify-corpus && node scripts/train-tiny-transformer.mjs",

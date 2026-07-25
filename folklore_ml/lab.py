@@ -16,13 +16,22 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import LinearSVC
 
+from .corpus import (
+    InstalledCorpus,
+    default_lock_path,
+    install_release,
+    load_lock,
+    verify_cached_release,
+    verify_release,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
-TASK_DATA = ROOT / "ml/data/edition-fingerprint-v1"
-RUN_ROOT = ROOT / "ml/runs/edition-fingerprint-v1"
+LEGACY_TASK_DATA = ROOT / "ml/data/edition-fingerprint-v1"
+LEGACY_RUN_ROOT = ROOT / "ml/runs/edition-fingerprint-v1"
 SEED = 20260724
 
 
-def _resolve_release() -> Path:
+def _resolve_legacy_release() -> Path:
     configured = os.environ.get("FOLKLORE_CORPUS_DIR")
     if configured:
         return Path(configured).resolve()
@@ -39,7 +48,43 @@ def _resolve_release() -> Path:
     return candidates[0]
 
 
-RELEASE = _resolve_release()
+def resolve_corpus_release(*, install: bool = False) -> InstalledCorpus:
+    if os.environ.get("FOLKLORE_CORPUS_DIR"):
+        return verify_release(_resolve_legacy_release())
+    lock_path = default_lock_path(ROOT)
+    if lock_path is not None:
+        lock = load_lock(lock_path)
+        if install:
+            return install_release(lock)
+        return verify_cached_release(lock)
+    release = _resolve_legacy_release()
+    return verify_release(release)
+
+
+def _task_data(corpus: InstalledCorpus) -> Path:
+    configured = os.environ.get("FOLKLORE_ML_DATA_DIR")
+    if configured:
+        return Path(configured).resolve()
+    if corpus.provenance:
+        return (
+            LEGACY_TASK_DATA
+            / "by-corpus"
+            / corpus.provenance["manifestSha256"]
+        )
+    return LEGACY_TASK_DATA
+
+
+def _run_root(corpus: InstalledCorpus) -> Path:
+    configured = os.environ.get("FOLKLORE_ML_RUN_DIR")
+    if configured:
+        return Path(configured).resolve()
+    if corpus.provenance:
+        return (
+            LEGACY_RUN_ROOT
+            / "by-corpus"
+            / corpus.provenance["manifestSha256"]
+        )
+    return LEGACY_RUN_ROOT
 
 
 def _records(path: Path) -> list[dict]:
@@ -67,85 +112,58 @@ def _sha256_text(value: str) -> str:
 
 
 def verify_corpus_release() -> dict:
-    manifest_bytes = (RELEASE / "manifest.json").read_bytes()
-    manifest_digest = hashlib.sha256(manifest_bytes).hexdigest()
-    manifest = json.loads(manifest_bytes)
-    if manifest.get("schemaVersion") != "folklore-release-manifest-v1":
-        raise RuntimeError(
-            f"Unsupported Corpus Release manifest: {manifest.get('schemaVersion')}"
-        )
-    if manifest.get("releaseId") != f"fa:release:corpus-v{manifest.get('version')}":
-        raise RuntimeError("Corpus Release ID and version disagree.")
-    artifacts = manifest.get("artifacts")
-    if not isinstance(artifacts, list) or not artifacts:
-        raise RuntimeError("Corpus Release has no declared artifacts.")
-    paths: set[str] = set()
-    for artifact in artifacts:
-        relative = artifact.get("path")
-        if (
-            not isinstance(relative, str)
-            or not relative
-            or relative.startswith("/")
-            or "\\" in relative
-            or any(part in (".", "..") for part in relative.split("/"))
-        ):
-            raise RuntimeError(f"Unsafe artifact path: {relative}")
-        if relative in paths:
-            raise RuntimeError(f"Duplicate artifact path: {relative}")
-        paths.add(relative)
-        contents = (RELEASE / relative).read_bytes()
-        if len(contents) != artifact.get("byteLength"):
-            raise RuntimeError(f"Artifact byte length mismatch: {relative}")
-        if hashlib.sha256(contents).hexdigest() != artifact.get("sha256"):
-            raise RuntimeError(f"Artifact digest mismatch: {relative}")
-    for required in (
-        "schema.json",
-        "documents.jsonl",
-        "witnesses.jsonl",
-        "passages.jsonl",
-    ):
-        if required not in paths:
-            raise RuntimeError(
-                f"Corpus Release is missing required artifact: {required}"
-            )
-    return {
-        "releaseId": manifest["releaseId"],
-        "version": manifest["version"],
-        "manifestSchemaVersion": manifest["schemaVersion"],
-        "manifestSha256": manifest_digest,
-        "artifactCount": len(artifacts),
-    }
+    return resolve_corpus_release().summary
 
 
 def prepare() -> dict:
-    verify_corpus_release()
-    release_manifest_bytes = (RELEASE / "manifest.json").read_bytes()
+    corpus = resolve_corpus_release(install=True)
+    release = corpus.path
+    release_manifest_bytes = (release / "manifest.json").read_bytes()
     manifest = json.loads(release_manifest_bytes)
-    documents = {row["id"]: row for row in _records(RELEASE / "documents.jsonl")}
-    witnesses = {row["documentId"]: row for row in _records(RELEASE / "witnesses.jsonl")}
-    splits = _records(RELEASE / "splits.jsonl")
+    documents = {row["id"]: row for row in _records(release / "documents.jsonl")}
+    witnesses = {
+        row["documentId"]: row for row in _records(release / "witnesses.jsonl")
+    }
+    splits = _records(release / "splits.jsonl")
+    passage_ids: dict[str, list[str]] = {}
+    if corpus.provenance:
+        for passage in _records(release / "passages.jsonl"):
+            passage_ids.setdefault(passage["documentId"], []).append(passage["id"])
     grouped: dict[str, list[dict]] = {"train": [], "validation": [], "test": []}
 
     for assignment in sorted(splits, key=lambda row: row["documentId"]):
-        document = documents[assignment["documentId"]]
-        witness = witnesses[assignment["documentId"]]
-        grouped[assignment["split"]].append(
-            {
-                "documentId": document["id"],
-                "witnessId": witness["id"],
-                "label": document["editionId"],
-                "title": document["title"],
-                "text": witness["text"],
-            }
-        )
+        document = documents.get(assignment["documentId"])
+        witness = witnesses.get(assignment["documentId"])
+        if (
+            document is None
+            or witness is None
+            or not isinstance(document.get("editionId"), str)
+            or not isinstance(witness.get("text"), str)
+        ):
+            continue
+        row = {
+            "documentId": document["id"],
+            "witnessId": witness["id"],
+            "label": document["editionId"],
+            "title": document["title"],
+            "text": witness["text"],
+        }
+        if corpus.provenance:
+            row["passageIds"] = sorted(passage_ids.get(document["id"], []))
+            if not row["passageIds"]:
+                raise RuntimeError(
+                    f"Task document has no relevant Passage IDs: {document['id']}"
+                )
+        grouped[assignment["split"]].append(row)
 
-    TASK_DATA.mkdir(parents=True, exist_ok=True)
+    task_data = _task_data(corpus)
+    task_data.mkdir(parents=True, exist_ok=True)
     digest = hashlib.sha256()
     for split, rows in grouped.items():
         contents = "".join(
             json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows
         )
-        (TASK_DATA / f"{split}.jsonl").write_text(contents, encoding="utf-8")
+        (task_data / f"{split}.jsonl").write_text(contents, encoding="utf-8")
         digest.update(split.encode())
         digest.update(contents.encode())
     task_manifest = {
@@ -159,19 +177,37 @@ def prepare() -> dict:
         "datasetSha256": digest.hexdigest(),
         "seed": SEED,
     }
-    _write_json(TASK_DATA / "manifest.json", task_manifest)
+    if corpus.provenance:
+        task_manifest["corpus"] = corpus.provenance
+        task_manifest["selection"] = {
+            "kind": "documents-with-edition-and-text-witness-v1",
+            "note": (
+                "Preserves the v0.1 edition-fingerprint diagnostic; "
+                "new multilingual retrieval tasks are defined separately."
+            ),
+        }
+        task_manifest["passageIds"] = sorted(
+            passage_id
+            for rows in grouped.values()
+            for row in rows
+            for passage_id in row["passageIds"]
+        )
+    _write_json(task_data / "manifest.json", task_manifest)
     print(json.dumps(task_manifest, indent=2))
     return task_manifest
 
 
-def _load_task(split: str) -> list[dict]:
-    return _records(TASK_DATA / f"{split}.jsonl")
+def _load_task(task_data: Path, split: str) -> list[dict]:
+    return _records(task_data / f"{split}.jsonl")
 
 
 def run_classifier() -> dict:
     task = prepare()
-    train = _load_task("train")
-    test = _load_task("test")
+    corpus = resolve_corpus_release()
+    task_data = _task_data(corpus)
+    run_root = _run_root(corpus)
+    train = _load_task(task_data, "train")
+    test = _load_task(task_data, "test")
     train_text = [row["text"] for row in train]
     train_labels = np.array([row["label"] for row in train])
     test_text = [row["text"] for row in test]
@@ -248,16 +284,18 @@ def run_classifier() -> dict:
             "values": confusion_matrix(test_labels, predictions, labels=labels).tolist(),
         },
     }
-    predictions_output = [
-        {
+    predictions_output = []
+    for row, actual, predicted in zip(test, test_labels, predictions):
+        output = {
             "documentId": row["documentId"],
             "title": row["title"],
             "actual": actual,
             "predicted": predicted,
             "correct": actual == predicted,
         }
-        for row, actual, predicted in zip(test, test_labels, predictions)
-    ]
+        if "passageIds" in row:
+            output["passageIds"] = row["passageIds"]
+        predictions_output.append(output)
     predictions_text = "".join(
         json.dumps(row, sort_keys=True) + "\n" for row in predictions_output
     )
@@ -302,26 +340,35 @@ infer cultural origin, ethnicity, authenticity, motif, or tale type.
             for filename, contents in artifact_contents.items()
         },
     }
-    RUN_ROOT.mkdir(parents=True, exist_ok=True)
-    _write_json(RUN_ROOT / "run.json", run)
+    if corpus.provenance:
+        run["corpus"] = corpus.provenance
+        run["passageIds"] = task["passageIds"]
+    run_root.mkdir(parents=True, exist_ok=True)
+    _write_json(run_root / "run.json", run)
     for filename, contents in artifact_contents.items():
-        (RUN_ROOT / filename).write_text(contents, encoding="utf-8")
+        (run_root / filename).write_text(contents, encoding="utf-8")
     print(json.dumps(metrics, indent=2))
     return metrics
 
 
-def verify() -> None:
-    verify_corpus_release()
-    task = json.loads((TASK_DATA / "manifest.json").read_text(encoding="utf-8"))
-    release = json.loads((RELEASE / "manifest.json").read_text(encoding="utf-8"))
+def verify(*, legacy_only: bool = False) -> None:
+    legacy_corpus = verify_release(_resolve_legacy_release())
+    task = json.loads(
+        (LEGACY_TASK_DATA / "manifest.json").read_text(encoding="utf-8")
+    )
+    release = json.loads(
+        (legacy_corpus.path / "manifest.json").read_text(encoding="utf-8")
+    )
     if task["corpusRelease"] != release["releaseId"]:
         raise RuntimeError("Task data is not pinned to the current release.")
-    release_digest = hashlib.sha256((RELEASE / "manifest.json").read_bytes()).hexdigest()
+    release_digest = hashlib.sha256(
+        (legacy_corpus.path / "manifest.json").read_bytes()
+    ).hexdigest()
     if task["corpusManifestSha256"] != release_digest:
         raise RuntimeError("Task data manifest digest does not match the release.")
     task_digest = hashlib.sha256()
     for split in ("train", "validation", "test"):
-        contents = (TASK_DATA / f"{split}.jsonl").read_text(encoding="utf-8")
+        contents = (LEGACY_TASK_DATA / f"{split}.jsonl").read_text(encoding="utf-8")
         task_digest.update(split.encode())
         task_digest.update(contents.encode())
     if task["datasetSha256"] != task_digest.hexdigest():
@@ -379,4 +426,88 @@ def verify() -> None:
     )
     if parameter_count != tiny_metrics["parameterCount"]:
         raise RuntimeError("Checkpoint parameter count does not match metrics.")
+    if legacy_only:
+        print("Verified preserved v0.1 task, runs, and checkpoint independently.")
+        return
+    lock_path = default_lock_path(ROOT)
+    if lock_path is None:
+        print(
+            "Verified task digest, ML artifact digests, checkpoint shape, "
+            "and release pins."
+        )
+        return
+    current_corpus = verify_cached_release(load_lock(lock_path))
+    if current_corpus.provenance:
+        current_task_root = _task_data(current_corpus)
+        if current_task_root.is_dir():
+            current_task = _read_provenance_artifact(
+                current_task_root / "manifest.json",
+                current_corpus,
+                "task",
+            )
+            current_digest = hashlib.sha256()
+            release_passage_ids = {
+                row["id"]
+                for row in _records(current_corpus.path / "passages.jsonl")
+            }
+            task_row_passage_ids: set[str] = set()
+            for split in ("train", "validation", "test"):
+                contents = (current_task_root / f"{split}.jsonl").read_text(
+                    encoding="utf-8"
+                )
+                for row in _records(current_task_root / f"{split}.jsonl"):
+                    row_passage_ids = row.get("passageIds")
+                    if not isinstance(row_passage_ids, list) or not row_passage_ids:
+                        raise RuntimeError(
+                            f"Pinned task row has no Passage IDs: "
+                            f"{row.get('documentId')}"
+                        )
+                    if len(row_passage_ids) != len(set(row_passage_ids)):
+                        raise RuntimeError("Pinned task row has duplicate Passage IDs.")
+                    if not set(row_passage_ids) <= release_passage_ids:
+                        raise RuntimeError(
+                            "Pinned task row references an unknown Passage ID."
+                        )
+                    task_row_passage_ids.update(row_passage_ids)
+                current_digest.update(split.encode())
+                current_digest.update(contents.encode())
+            if current_task["datasetSha256"] != current_digest.hexdigest():
+                raise RuntimeError("Prepared pinned task data digest mismatch.")
+            if task_row_passage_ids != set(current_task["passageIds"]):
+                raise RuntimeError(
+                    "Pinned task Passage IDs do not match its task rows."
+                )
+            current_run_root = _run_root(current_corpus)
+            if (current_run_root / "run.json").is_file():
+                current_run = _read_provenance_artifact(
+                    current_run_root / "run.json",
+                    current_corpus,
+                    "run",
+                )
+                if current_run["datasetSha256"] != current_task["datasetSha256"]:
+                    raise RuntimeError("Pinned run and task data disagree.")
+                if current_run["passageIds"] != current_task["passageIds"]:
+                    raise RuntimeError("Pinned run and task Passage IDs disagree.")
     print("Verified task digest, ML artifact digests, checkpoint shape, and release pins.")
+
+
+def _read_provenance_artifact(
+    path: Path,
+    corpus: InstalledCorpus,
+    description: str,
+) -> dict:
+    artifact = json.loads(path.read_text(encoding="utf-8"))
+    if artifact.get("corpus") != corpus.provenance:
+        raise RuntimeError(f"Pinned {description} Corpus provenance mismatch.")
+    passage_ids = artifact.get("passageIds")
+    if (
+        not isinstance(passage_ids, list)
+        or not passage_ids
+        or len(passage_ids) != len(set(passage_ids))
+        or not all(
+            isinstance(passage_id, str) and passage_id.startswith("fa:passage:")
+            for passage_id in passage_ids
+        )
+    ):
+        raise RuntimeError(f"Pinned {description} Passage IDs are invalid.")
+    return artifact

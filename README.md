@@ -18,15 +18,50 @@ similarity with human-reviewed evaluation.
 
 ```bash
 npm install
+python -m pip install -r ml/requirements-lock.txt
+npm run corpus:fetch
 npm run corpus:verify
+python -m folklore_ml corpus status
 python -m folklore_ml prepare
 python -m folklore_ml classifier
 npm run ml:tiny
 python -m folklore_ml verify
+python -m folklore_ml verify --legacy-only
 npm test
 ```
 
-Python versions are recorded in `ml/requirements-lock.txt`. ML preparation now
-verifies every Corpus artifact before reading it; `FOLKLORE_CORPUS_DIR` can
-select a different installed Release. Task and run artifacts remain pinned by
-Release ID and manifest digest.
+Python versions are recorded in `ml/requirements-lock.txt`.
+
+## Corpus release boundary
+
+ML preparation resolves one reviewed `corpus-release.lock.json`, installs its
+archive into a content-addressed cache, and verifies the archive, enclosed
+manifest, release identity, and every declared artifact before reading any
+records. `FOLKLORE_CACHE_DIR` overrides the user cache root and
+`FOLKLORE_OFFLINE=1` forbids network access.
+
+`corpus-release.lock.json` pins the published Corpus v0.2.0 archive and enclosed
+manifest by SHA-256. The lock has this field contract:
+
+```text
+corpus-release.lock.json
+├── schemaVersion
+├── source.repository / tag / asset / url
+├── archiveSha256
+├── manifestSha256
+├── releaseId / version
+└── manifestSchemaVersion
+```
+
+The exact field contract is executable in
+`corpus-release.lock.schema.json`. `npm run corpus:fetch` installs it and
+task/run outputs are namespaced by the manifest digest, preserving the v0.1
+artifacts. New task rows and task/run manifests also record the relevant
+Passage IDs and the full deterministic Corpus provenance block.
+
+`python -m folklore_ml verify --legacy-only` verifies the preserved v0.1 task
+and runs without resolving the current lock or requiring its cache. This keeps
+the educational history independently auditable after the v0.2 pin lands.
+
+`FOLKLORE_CORPUS_DIR` remains available only for verifying the preserved legacy
+release; pinned work does not select releases by versioned directory name.
