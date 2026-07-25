@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://folklore-atlas.local/schemas/folklore-corpus-lock-v1.json",
+  "title": "Folklore Corpus consumer lock",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "source",
+    "archiveSha256",
+    "manifestSha256",
+    "releaseId",
+    "version",
+    "manifestSchemaVersion"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "folklore-corpus-lock-v1"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "tag", "asset", "url"],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tag": {
+          "type": "string",
+          "minLength": 1
+        },
+        "asset": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://"
+        }
+      }
+    },
+    "archiveSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "manifestSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "releaseId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "manifestSchemaVersion": {
+      "const": "folklore-release-manifest-v1"
+    }
+  }
+}

@@ -1,27 +1,40 @@
 import { createHash } from "node:crypto";
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import * as tf from "@tensorflow/tfjs";
 
 const root = process.cwd();
-const dataRoot = path.join(root, "ml/data/edition-fingerprint-v1");
-const runRoot = path.join(root, "ml/runs/tiny-byte-transformer-v1");
-const releasesRoot = path.join(root, "data/derived/releases");
-const releaseCandidates = (
-  await readdir(releasesRoot, { withFileTypes: true })
-)
-  .filter((entry) => entry.isDirectory() && entry.name.startsWith("corpus-v"))
-  .map((entry) => path.join(releasesRoot, entry.name));
-const releaseRoot = process.env.FOLKLORE_CORPUS_DIR
-  ? path.resolve(process.env.FOLKLORE_CORPUS_DIR)
-  : releaseCandidates.length === 1
-    ? releaseCandidates[0]
-    : (() => {
-        throw new Error(
-          `Expected exactly one installed Corpus Release, found ${releaseCandidates.length}. Set FOLKLORE_CORPUS_DIR explicitly.`,
-        );
-      })();
+const corpusStatus = JSON.parse(
+  execFileSync(
+    "python",
+    ["-m", "folklore_ml", "corpus", "status"],
+    { encoding: "utf8" },
+  ),
+);
+const releaseRoot = corpusStatus.path;
+const pinnedCorpus = corpusStatus.corpus.archiveSha256
+  ? corpusStatus.corpus
+  : null;
+const dataRoot = process.env.FOLKLORE_ML_DATA_DIR
+  ? path.resolve(process.env.FOLKLORE_ML_DATA_DIR)
+  : pinnedCorpus
+    ? path.join(
+        root,
+        "ml/data/edition-fingerprint-v1/by-corpus",
+        pinnedCorpus.manifestSha256,
+      )
+    : path.join(root, "ml/data/edition-fingerprint-v1");
+const runRoot = process.env.FOLKLORE_ML_RUN_DIR
+  ? path.resolve(process.env.FOLKLORE_ML_RUN_DIR)
+  : pinnedCorpus
+    ? path.join(
+        root,
+        "ml/runs/tiny-byte-transformer-v1/by-corpus",
+        pinnedCorpus.manifestSha256,
+      )
+    : path.join(root, "ml/runs/tiny-byte-transformer-v1");
 const seed = 20260724;
 const config = {
   vocabSize: 257,
@@ -483,6 +496,10 @@ const run = {
   command: "npm run ml:tiny",
   durationSeconds: (Date.now() - startedAt) / 1000,
 };
+if (pinnedCorpus) {
+  run.corpus = pinnedCorpus;
+  run.passageIds = taskManifest.passageIds;
+}
 const checkpoint = {
   format: "tfjs-variable-arrays-v1",
   config,
@@ -496,7 +513,8 @@ const checkpoint = {
 const modelCard = `# Tiny Byte Transformer v1
 
 This ${parameterCount.toLocaleString()}-parameter, one-block causal Transformer
-was trained from scratch on the training split of Folklore Corpus v0.1.0. It is
+was trained from scratch on the training split of Folklore Corpus
+${releaseManifest.version}. It is
 an instrumented learning experiment, not a useful language model and not a
 candidate for deployment.
 

@@ -18,7 +18,15 @@ describe("ML Lab Corpus Release boundary", () => {
     const output = execFileSync(
       "python",
       ["-m", "folklore_ml", "verify-corpus"],
-      { encoding: "utf8" },
+      {
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          FOLKLORE_CORPUS_DIR: resolve(
+            "data/derived/releases/corpus-v0.1.0",
+          ),
+        },
+      },
     );
     const result = JSON.parse(output);
     expect(result.releaseId).toBe("fa:release:corpus-v0.1.0");
