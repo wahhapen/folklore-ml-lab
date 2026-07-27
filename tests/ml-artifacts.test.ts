@@ -118,8 +118,9 @@ describe("ML Lab experiment contract", () => {
       humanReview: { criteria: ["Reject cultural-origin inference."] },
       provenance: {
         datasetSha256: "b".repeat(64),
-        code: { repository: "wahhapen/folklore-ml-lab", revision: "main" },
+        code: { repository: "wahhapen/folklore-ml-lab", revision: "c".repeat(40) },
         command: "python -m folklore_ml classifier",
+        source: { kind: "new-run" },
       },
       cost: {
         time: { status: "recorded", value: 12.5, unit: "seconds" },
@@ -128,6 +129,8 @@ describe("ML Lab experiment contract", () => {
       },
       limitations: ["Small frozen evaluation."],
       decision: {
+        target: "candidate",
+        scope: "Candidate use on the frozen evaluation.",
         outcome: "continue",
         rationale: "Expand evaluation before adoption.",
       },
@@ -143,8 +146,9 @@ describe("ML Lab experiment contract", () => {
 
     expect(() => verify(valid)).not.toThrow();
     for (const invalid of [
-      { ...valid, decision: { outcome: "ship", rationale: "invalid" } },
+      { ...valid, decision: { ...valid.decision, outcome: "ship" } },
       { ...valid, provenance: undefined },
+      { ...valid, baseline: { name: "majority", metrics: {} } },
       { ...valid, cost: { time: valid.cost.time, compute: valid.cost.compute } },
     ]) {
       expect(() => verify(invalid)).toThrow();
