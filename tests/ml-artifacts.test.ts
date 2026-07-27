@@ -99,6 +99,58 @@ describe("ML Lab experiment contract", () => {
     expect(manifest.datasetSha256).toMatch(/^[a-f0-9]{64}$/);
   });
 
+
+  it("validates v2 records and rejects incomplete lifecycle fields", () => {
+    const root = mkdtempSync(join(tmpdir(), "folklore-ml-run-v2-"));
+    temporaryDirectories.push(root);
+    const recordPath = join(root, "run.json");
+    const valid = {
+      schemaVersion: "folklore-ml-run-v2",
+      experimentId: "test-run-v2",
+      question: { kind: "learning", text: "Does the candidate beat the baseline?" },
+      hypothesis: "The candidate improves macro-F1.",
+      evaluation: {
+        frozenIdentity: { id: "evaluation-v1", sha256: "a".repeat(64) },
+      },
+      baseline: { name: "majority", metrics: { macroF1: 0.08 } },
+      candidate: { name: "character-tfidf", metrics: { macroF1: 1.0 } },
+      metrics: { primary: ["macroF1"], secondary: ["accuracy"] },
+      humanReview: { criteria: ["Reject cultural-origin inference."] },
+      provenance: {
+        datasetSha256: "b".repeat(64),
+        code: { repository: "wahhapen/folklore-ml-lab", revision: "main" },
+        command: "python -m folklore_ml classifier",
+      },
+      cost: {
+        time: { status: "recorded", value: 12.5, unit: "seconds" },
+        compute: { status: "recorded", value: 12.5, unit: "cpu-seconds" },
+        money: { status: "recorded", value: 0, currency: "USD" },
+      },
+      limitations: ["Small frozen evaluation."],
+      decision: {
+        outcome: "continue",
+        rationale: "Expand evaluation before adoption.",
+      },
+    };
+    const verify = (record: unknown) => {
+      writeFileSync(recordPath, `${JSON.stringify(record, null, 2)}\n`);
+      return execFileSync(
+        "python",
+        ["-m", "folklore_ml", "verify-run", recordPath],
+        { encoding: "utf8", stdio: "pipe" },
+      );
+    };
+
+    expect(() => verify(valid)).not.toThrow();
+    for (const invalid of [
+      { ...valid, decision: { outcome: "ship", rationale: "invalid" } },
+      { ...valid, provenance: undefined },
+      { ...valid, cost: { time: valid.cost.time, compute: valid.cost.compute } },
+    ]) {
+      expect(() => verify(invalid)).toThrow();
+    }
+  });
+
   it("publishes verifiable classifier and tiny-transformer run artifacts", () => {
     for (const run of ["edition-fingerprint-v1", "tiny-byte-transformer-v1"]) {
       const root = `ml/runs/${run}`;
