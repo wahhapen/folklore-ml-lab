@@ -9,6 +9,7 @@ from .corpus import (
     result_json,
     verify_cached_release,
 )
+from .experiment_record import validate_experiment_record_file
 from .lab import (
     prepare,
     resolve_corpus_release,
@@ -23,6 +24,8 @@ def main() -> None:
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("prepare")
     subparsers.add_parser("classifier")
+    verify_run_parser = subparsers.add_parser("verify-run")
+    verify_run_parser.add_argument("path", type=Path)
     verify_parser = subparsers.add_parser("verify")
     verify_parser.add_argument("--legacy-only", action="store_true")
     subparsers.add_parser("verify-corpus")
@@ -42,6 +45,12 @@ def main() -> None:
         prepare()
     elif args.command == "classifier":
         run_classifier()
+    elif args.command == "verify-run":
+        record = validate_experiment_record_file(args.path.resolve())
+        print(json.dumps({
+            "schemaVersion": record["schemaVersion"],
+            "status": "valid",
+        }, indent=2))
     elif args.command == "verify-corpus":
         print(json.dumps(verify_corpus_release(), indent=2))
     elif args.command == "corpus":

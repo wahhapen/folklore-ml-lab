@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "folklore-ml-run-v2",
+  "experimentId": "edition-fingerprint-v1-record-v2",
+  "question": {
+    "kind": "learning",
+    "text": "Can a simple character n-gram classifier expose edition and translation fingerprint leakage in the preserved v0.1 corpus?"
+  },
+  "hypothesis": "Character 3–5 gram TF-IDF will outperform a majority baseline because editorial and translation fingerprints leak edition identity.",
+  "evaluation": {
+    "frozenIdentity": {
+      "id": "edition-fingerprint-v1/general-v1",
+      "sha256": "60f2df993fb1f8ca92d94c6ba0ff32f99604d9fb785d2ac80fe90bd79b79e282"
+    }
+  },
+  "baseline": {
+    "name": "majority-class control",
+    "metrics": {
+      "accuracy": 0.25,
+      "macroF1": 0.08
+    }
+  },
+  "candidate": {
+    "name": "character 3–5 gram TF-IDF plus LinearSVC",
+    "metrics": {
+      "accuracy": 1,
+      "macroF1": 1
+    }
+  },
+  "metrics": {
+    "primary": [
+      "macroF1"
+    ],
+    "secondary": [
+      "accuracy",
+      "confusionMatrix"
+    ]
+  },
+  "humanReview": {
+    "criteria": [
+      "Treat the result only as an edition-fingerprint leakage diagnostic.",
+      "Reject any cultural-origin, authenticity, motif, or tale-type inference."
+    ]
+  },
+  "provenance": {
+    "datasetSha256": "60f2df993fb1f8ca92d94c6ba0ff32f99604d9fb785d2ac80fe90bd79b79e282",
+    "corpusRelease": "fa:release:corpus-v0.1.0",
+    "corpusManifestSha256": "1e614c013f4ec9a21e574a17653c8430eee11ae95ba80cc099a7dc52c7f257ca",
+    "code": {
+      "repository": "wahhapen/folklore-ml-lab",
+      "revision": "e5b1439bebfd7358c28377cb30755f0fdf2065e5"
+    },
+    "command": "python -m folklore_ml classifier",
+    "source": {
+      "kind": "migration",
+      "record": "ml/runs/edition-fingerprint-v1/run.json",
+      "schemaVersion": "folklore-ml-run-v1"
+    }
+  },
+  "cost": {
+    "time": {
+      "status": "not-recorded",
+      "value": null,
+      "unit": "seconds",
+      "rationale": "The preserved historical classifier run did not record wall-clock time."
+    },
+    "compute": {
+      "status": "not-recorded",
+      "value": null,
+      "unit": "cpu-seconds",
+      "rationale": "The preserved historical classifier run did not record CPU consumption."
+    },
+    "money": {
+      "status": "recorded",
+      "value": 0,
+      "currency": "USD"
+    }
+  },
+  "limitations": [
+    "The held-out test contains only 12 documents.",
+    "Perfect edition attribution measures editorial and translation leakage, not folklore understanding.",
+    "This v2 record migrates metadata around preserved v1 evidence; it does not claim a rerun."
+  ],
+  "decision": {
+    "outcome": "adopt",
+    "rationale": "Retain the experiment as a leakage diagnostic and reject the candidate for folklore classification.",
+    "target": "experiment-use",
+    "scope": "Retain only as an edition-fingerprint leakage diagnostic."
+  }
+}

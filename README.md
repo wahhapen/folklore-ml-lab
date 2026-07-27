@@ -65,3 +65,15 @@ the educational history independently auditable after the v0.2 pin lands.
 
 `FOLKLORE_CORPUS_DIR` remains available only for verifying the preserved legacy
 release; pinned work does not select releases by versioned directory name.
+
+## Experiment records
+
+New work uses the backward-compatible `folklore-ml-run-v2` lifecycle record.
+Preserved v1 runs remain unchanged and readable. Validate either version with:
+
+```bash
+python -m folklore_ml verify-run path/to/run.json
+```
+
+See [the v2 experiment-record contract](docs/experiment-record-v2.md) and the
+[representative v2 migration](ml/runs/edition-fingerprint-v1-record-v2/run.json).
