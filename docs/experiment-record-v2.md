@@ -2,7 +2,7 @@
 
 `folklore-ml-run-v2` records the complete decision lifecycle around an experiment without rewriting preserved `folklore-ml-run-v1` evidence.
 
-A v2 record must name its product or learning question, hypothesis, frozen evaluation identity, baseline and candidate results, primary and secondary metrics, human-review criteria, dataset/code/command provenance, explicit time/compute/money cost, limitations, and one decision: `adopt`, `reject`, `continue`, or `inconclusive`.
+A v2 record must name its product or learning question, hypothesis, frozen evaluation identity, baseline and candidate results, primary and secondary metrics, human-review criteria, dataset provenance, an immutable 40-character code revision, command and source lineage, explicit time/compute/money cost, limitations, and one decision with an explicit target and scope: `adopt`, `reject`, `continue`, or `inconclusive`.
 
 Unknown historical cost is allowed only when it is fail-visible: use `status: "not-recorded"`, a null value, a unit or currency, and a rationale. Omitting a cost channel is invalid.
 
