@@ -16,7 +16,11 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import LinearSVC
 
-from .experiment_record import validate_experiment_record, validate_experiment_record_file
+from .experiment_record import (
+    assert_finite_numbers,
+    validate_experiment_record,
+    validate_experiment_record_file,
+)
 from .corpus import (
     InstalledCorpus,
     default_lock_path,
@@ -375,16 +379,6 @@ def verify(*, legacy_only: bool = False) -> None:
     if task["datasetSha256"] != task_digest.hexdigest():
         raise RuntimeError("Prepared task data digest mismatch.")
 
-    def assert_finite(value: object, path: str = "metrics") -> None:
-        if isinstance(value, dict):
-            for key, child in value.items():
-                assert_finite(child, f"{path}.{key}")
-        elif isinstance(value, list):
-            for index, child in enumerate(value):
-                assert_finite(child, f"{path}[{index}]")
-        elif isinstance(value, float) and not math.isfinite(value):
-            raise RuntimeError(f"Non-finite value at {path}")
-
     for run_name in ("edition-fingerprint-v1", "tiny-byte-transformer-v1"):
         run_root = ROOT / "ml/runs" / run_name
         for filename in ("run.json", "metrics.json", "model-card.md"):
@@ -406,7 +400,7 @@ def verify(*, legacy_only: bool = False) -> None:
             if hashlib.sha256(artifact.read_bytes()).hexdigest() != expected_digest:
                 raise RuntimeError(f"Artifact digest mismatch: {run_name}/{filename}")
         metrics = json.loads((run_root / "metrics.json").read_text(encoding="utf-8"))
-        assert_finite(metrics)
+        assert_finite_numbers(metrics, "metrics")
 
     checkpoint = json.loads(
         (ROOT / "ml/runs/tiny-byte-transformer-v1/checkpoint.json").read_text(
