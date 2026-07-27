@@ -22,8 +22,8 @@
   "candidate": {
     "name": "character 3–5 gram TF-IDF plus LinearSVC",
     "metrics": {
-      "accuracy": 1.0,
-      "macroF1": 1.0
+      "accuracy": 1,
+      "macroF1": 1
     }
   },
   "metrics": {
@@ -50,7 +50,11 @@
       "revision": "e5b1439bebfd7358c28377cb30755f0fdf2065e5"
     },
     "command": "python -m folklore_ml classifier",
-    "sourceRecord": "ml/runs/edition-fingerprint-v1/run.json"
+    "source": {
+      "kind": "migration",
+      "record": "ml/runs/edition-fingerprint-v1/run.json",
+      "schemaVersion": "folklore-ml-run-v1"
+    }
   },
   "cost": {
     "time": {
@@ -78,6 +82,8 @@
   ],
   "decision": {
     "outcome": "adopt",
-    "rationale": "Retain the experiment as a leakage diagnostic and reject the candidate for folklore classification."
+    "rationale": "Retain the experiment as a leakage diagnostic and reject the candidate for folklore classification.",
+    "target": "experiment-use",
+    "scope": "Retain only as an edition-fingerprint leakage diagnostic."
   }
 }
