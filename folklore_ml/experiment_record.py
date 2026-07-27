@@ -111,12 +111,19 @@ def validate_experiment_record(record: object) -> dict:
     for field in ("baseline", "candidate"):
         method = _mapping(run.get(field), field)
         _text(method.get("name"), f"{field}.name")
-        _mapping(method.get("metrics"), f"{field}.metrics")
-        assert_finite_numbers(method["metrics"], f"{field}.metrics")
+        results = _mapping(method.get("metrics"), f"{field}.metrics")
+        if not results:
+            raise RuntimeError(f"{field}.metrics must not be empty.")
+        assert_finite_numbers(results, f"{field}.metrics")
 
     metrics = _mapping(run.get("metrics"), "metrics")
-    _string_list(metrics.get("primary"), "metrics.primary")
+    primary_metrics = _string_list(metrics.get("primary"), "metrics.primary")
     _string_list(metrics.get("secondary"), "metrics.secondary")
+    for metric in primary_metrics:
+        if metric not in run["baseline"]["metrics"] or metric not in run["candidate"]["metrics"]:
+            raise RuntimeError(
+                f"Primary metric {metric!r} must exist in baseline and candidate results."
+            )
 
     human_review = _mapping(run.get("humanReview"), "humanReview")
     _string_list(human_review.get("criteria"), "humanReview.criteria")
@@ -125,8 +132,23 @@ def validate_experiment_record(record: object) -> dict:
     _sha256(provenance.get("datasetSha256"), "provenance.datasetSha256")
     code = _mapping(provenance.get("code"), "provenance.code")
     _text(code.get("repository"), "provenance.code.repository")
-    _text(code.get("revision"), "provenance.code.revision")
+    revision = _text(code.get("revision"), "provenance.code.revision")
+    if len(revision) != 40 or any(character not in "0123456789abcdef" for character in revision):
+        raise RuntimeError("provenance.code.revision must be an immutable Git commit SHA.")
     _text(provenance.get("command"), "provenance.command")
+    source = _mapping(provenance.get("source"), "provenance.source")
+    if source.get("kind") not in {"new-run", "migration"}:
+        raise RuntimeError("provenance.source.kind must be new-run or migration.")
+    if source.get("kind") == "migration":
+        _text(source.get("record"), "provenance.source.record")
+        _text(source.get("schemaVersion"), "provenance.source.schemaVersion")
+    corpus_release = provenance.get("corpusRelease")
+    corpus_digest = provenance.get("corpusManifestSha256")
+    if (corpus_release is None) != (corpus_digest is None):
+        raise RuntimeError("Corpus provenance requires both release and manifest digest.")
+    if corpus_release is not None:
+        _text(corpus_release, "provenance.corpusRelease")
+        _sha256(corpus_digest, "provenance.corpusManifestSha256")
 
     cost = _mapping(run.get("cost"), "cost")
     _cost_channel(cost.get("time"), "cost.time")
@@ -135,6 +157,11 @@ def validate_experiment_record(record: object) -> dict:
 
     _string_list(run.get("limitations"), "limitations")
     decision = _mapping(run.get("decision"), "decision")
+    if decision.get("target") not in {"candidate", "baseline", "experiment-use", "product-change"}:
+        raise RuntimeError(
+            "decision.target must be candidate, baseline, experiment-use, or product-change."
+        )
+    _text(decision.get("scope"), "decision.scope")
     if decision.get("outcome") not in DECISIONS:
         raise RuntimeError(
             "decision.outcome must be adopt, reject, continue, or inconclusive."
