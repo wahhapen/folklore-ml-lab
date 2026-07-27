@@ -16,6 +16,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import LinearSVC
 
+from .experiment_record import validate_experiment_record, validate_experiment_record_file
 from .corpus import (
     InstalledCorpus,
     default_lock_path,
@@ -51,6 +52,9 @@ def _resolve_legacy_release() -> Path:
 def resolve_corpus_release(*, install: bool = False) -> InstalledCorpus:
     if os.environ.get("FOLKLORE_CORPUS_DIR"):
         return verify_release(_resolve_legacy_release())
+    validate_experiment_record_file(
+        ROOT / "ml/runs/edition-fingerprint-v1-record-v2/run.json"
+    )
     lock_path = default_lock_path(ROOT)
     if lock_path is not None:
         lock = load_lock(lock_path)
@@ -390,6 +394,7 @@ def verify(*, legacy_only: bool = False) -> None:
             if not (run_root / filename).is_file():
                 raise RuntimeError(f"Missing {run_name}/{filename}")
         run = json.loads((run_root / "run.json").read_text(encoding="utf-8"))
+        validate_experiment_record(run)
         if (
             run["corpusRelease"] != release["releaseId"]
             or run["corpusManifestSha256"] != release_digest
