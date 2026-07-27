@@ -30,13 +30,13 @@ def _sha256(value: object, path: str) -> str:
     return text
 
 
-def _finite_numbers(value: object, path: str) -> None:
+def assert_finite_numbers(value: object, path: str) -> None:
     if isinstance(value, Mapping):
         for key, child in value.items():
-            _finite_numbers(child, f"{path}.{key}")
+            assert_finite_numbers(child, f"{path}.{key}")
     elif isinstance(value, list):
         for index, child in enumerate(value):
-            _finite_numbers(child, f"{path}[{index}]")
+            assert_finite_numbers(child, f"{path}[{index}]")
     elif isinstance(value, float) and not math.isfinite(value):
         raise RuntimeError(f"{path} contains a non-finite number.")
 
@@ -112,7 +112,7 @@ def validate_experiment_record(record: object) -> dict:
         method = _mapping(run.get(field), field)
         _text(method.get("name"), f"{field}.name")
         _mapping(method.get("metrics"), f"{field}.metrics")
-        _finite_numbers(method["metrics"], f"{field}.metrics")
+        assert_finite_numbers(method["metrics"], f"{field}.metrics")
 
     metrics = _mapping(run.get("metrics"), "metrics")
     _string_list(metrics.get("primary"), "metrics.primary")
