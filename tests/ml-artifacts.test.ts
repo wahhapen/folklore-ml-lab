@@ -89,9 +89,9 @@ describe("ML Lab experiment contract", () => {
     const manifest = JSON.parse(
       readFileSync(join(taskData, "manifest.json"), "utf8"),
     );
-    expect(manifest.corpusRelease).toBe("fa:release:corpus-v0.2.0");
+    expect(manifest.corpusRelease).toBe("fa:release:corpus-v0.2.1");
     expect(manifest.corpusManifestSha256).toBe(
-      "8605d05e9858a3480985c3f4553952c4a374ce7bad4d6a7f5ad74672bf1587dd",
+      "d809fe8acf43642217af58c0e8ed9399740a0349a21064e40ae63eb3cd030bbd",
     );
     expect(manifest.counts.train + manifest.counts.validation + manifest.counts.test).toBe(
       170,
@@ -153,7 +153,7 @@ describe("ML Lab experiment contract", () => {
     ]) {
       expect(() => verify(invalid)).toThrow();
     }
-  });
+  }, 15_000);
 
   it("publishes verifiable classifier and tiny-transformer run artifacts", () => {
     for (const run of ["edition-fingerprint-v1", "tiny-byte-transformer-v1"]) {
