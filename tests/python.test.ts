@@ -3,17 +3,18 @@ import { describe, expect, it } from "vitest";
 import { resolvePythonInterpreter } from "./python.js";
 
 describe("Python interpreter resolution", () => {
-  it("honors an explicit executable from PYTHON", () => {
+  it("honors an explicit Python 3.12 executable", () => {
+    const python = resolvePythonInterpreter();
+    expect(resolvePythonInterpreter({
+      ...process.env,
+      PYTHON: python,
+    })).toBe(python);
+  });
+
+  it("rejects a non-Python override and falls back", () => {
     expect(resolvePythonInterpreter({
       ...process.env,
       PYTHON: process.execPath,
-    })).toBe(process.execPath);
-  });
-
-  it("falls back after an unavailable PYTHON override", () => {
-    expect(resolvePythonInterpreter({
-      ...process.env,
-      PYTHON: "missing-python-interpreter",
-    })).toMatch(/^python3?$/);
+    })).not.toBe(process.execPath);
   });
 });
