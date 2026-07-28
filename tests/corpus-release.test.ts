@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
+import { PYTHON } from "./python.js";
 
 describe("ML Lab Corpus Release boundary", () => {
   const temporaryDirectories: string[] = [];
@@ -16,7 +17,7 @@ describe("ML Lab Corpus Release boundary", () => {
 
   it("verifies every declared corpus artifact before preparing ML data", () => {
     const output = execFileSync(
-      "python",
+      PYTHON,
       ["-m", "folklore_ml", "verify-corpus"],
       {
         encoding: "utf8",
@@ -55,7 +56,7 @@ describe("ML Lab Corpus Release boundary", () => {
 
     expect(() =>
       execFileSync(
-        "python",
+        PYTHON,
         ["-m", "folklore_ml", "verify-corpus"],
         {
           env: { ...process.env, FOLKLORE_CORPUS_DIR: releaseRoot },

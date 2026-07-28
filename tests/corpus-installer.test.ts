@@ -13,6 +13,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
+import { PYTHON } from "./python.js";
 
 type Fixture = {
   archive: string;
@@ -80,7 +81,7 @@ function makeFixture(
     args.push("--drop-first-document-passages");
   }
   const result = JSON.parse(
-    execFileSync("python", args, { encoding: "utf8" }),
+    execFileSync(PYTHON, args, { encoding: "utf8" }),
   );
   return { archive, ...result };
 }
@@ -173,7 +174,7 @@ async function runCorpus(
   extraEnv: NodeJS.ProcessEnv = {},
 ): Promise<string> {
   const child = spawn(
-    "python",
+    PYTHON,
     ["-m", "folklore_ml", "corpus", ...args, "--lock", lockPath],
     {
       env: {
@@ -195,7 +196,7 @@ async function runPython(
   args: string[],
   environment: NodeJS.ProcessEnv = {},
 ): Promise<string> {
-  const child = spawn("python", args, {
+  const child = spawn(PYTHON, args, {
     env: { ...process.env, ...environment },
     stdio: ["ignore", "pipe", "pipe"],
   });
@@ -212,7 +213,7 @@ function spawnCorpus(
   cacheRoot: string,
 ): ChildProcess {
   return spawn(
-    "python",
+    PYTHON,
     ["-m", "folklore_ml", "corpus", ...args, "--lock", lockPath],
     {
       env: { ...process.env, FOLKLORE_CACHE_DIR: cacheRoot },

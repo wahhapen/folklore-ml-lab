@@ -11,6 +11,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
+import { PYTHON } from "./python.js";
 
 describe("ML Lab experiment contract", () => {
   const temporaryDirectories: string[] = [];
@@ -45,7 +46,7 @@ describe("ML Lab experiment contract", () => {
 
     expect(() =>
       execFileSync(
-        "python",
+        PYTHON,
         ["-m", "folklore_ml", "verify", "--legacy-only"],
         {
           env: {
@@ -64,7 +65,7 @@ describe("ML Lab experiment contract", () => {
     temporaryDirectories.push(root);
     const path = "ml/data/edition-fingerprint-v1/manifest.json";
     const before = createHash("sha256").update(readFileSync(path)).digest("hex");
-    execFileSync("python", ["-m", "folklore_ml", "prepare"], {
+    execFileSync(PYTHON, ["-m", "folklore_ml", "prepare"], {
       env: {
         ...process.env,
         FOLKLORE_ML_DATA_DIR: join(root, "task-data"),
@@ -79,7 +80,7 @@ describe("ML Lab experiment contract", () => {
     const root = mkdtempSync(join(tmpdir(), "folklore-ml-prepare-"));
     temporaryDirectories.push(root);
     const taskData = join(root, "task-data");
-    execFileSync("python", ["-m", "folklore_ml", "prepare"], {
+    execFileSync(PYTHON, ["-m", "folklore_ml", "prepare"], {
       env: {
         ...process.env,
         FOLKLORE_ML_DATA_DIR: taskData,
@@ -138,7 +139,7 @@ describe("ML Lab experiment contract", () => {
     const verify = (record: unknown) => {
       writeFileSync(recordPath, `${JSON.stringify(record, null, 2)}\n`);
       return execFileSync(
-        "python",
+        PYTHON,
         ["-m", "folklore_ml", "verify-run", recordPath],
         { encoding: "utf8", stdio: "pipe" },
       );
