@@ -1,7 +1,11 @@
 # Repository Split Handoff
 
-Status: ready for approval; not executed
+Status: superseded; split completed and retained for history
 Prepared: 2026-07-24
+
+The split into `folklore-corpus`, `folklore-search`, and
+`folklore-ml-lab` was completed. The remaining roadmap language below is
+historical context, not an active plan or backlog.
 
 ## Decision
 
