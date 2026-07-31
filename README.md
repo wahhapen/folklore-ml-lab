@@ -40,8 +40,11 @@ manifest, release identity, and every declared artifact before reading any
 records. `FOLKLORE_CACHE_DIR` overrides the user cache root and
 `FOLKLORE_OFFLINE=1` forbids network access.
 
-`corpus-release.lock.json` pins the published Corpus v0.2.0 archive and enclosed
-manifest by SHA-256. The lock has this field contract:
+`corpus-release.lock.json` pins the published Corpus v0.2.1 archive and enclosed
+manifest by SHA-256. It is used by the Corpus install and verification commands
+and by newly generated task and run outputs. The preserved checked-in task and
+all preserved run records remain pinned to Corpus v0.1.0; no preserved run
+consumes the v0.2.1 lock. The lock has this field contract:
 
 ```text
 corpus-release.lock.json
